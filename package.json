@@ -1,0 +1,18 @@
+{
+  "name": "react-hwe-deps",
+  "version": "0.1.0",
+  "description": "Dependencies for hwe-react.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "hwe",
+    "helm"
+  ],
+  "author": "Josh Ren",
+  "license": "ISC",
+  "dependencies": {
+    "postscribe": "^2.0.8"
+  }
+}
