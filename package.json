@@ -1,7 +1,9 @@
 {
-  "name": "react-hwe-deps",
+  "name": "@PistoiaHELM/react-hwe-deps",
   "version": "0.1.1",
   "description": "Dependencies for hwe-react.",
+  "publishConfig": { "registry": "https://npm.pkg.github.com/PistoiaHELM" },
+  "repository" : "https://github.com/PistoiaHELM/react-hwe-deps.git",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
