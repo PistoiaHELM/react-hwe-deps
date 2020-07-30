@@ -11,7 +11,7 @@ module.exports = () => {
       done: () => {
         require('./src/pako/pako.js');
         require('./src/JSDraw/Scilligence.JSDraw2.Lite-uncompressed.js'); // line 26950 breaks app, its commented out here
-        reqire('./src/JSDraw/Pistoia.HELM.js');
+        require('./src/JSDraw/Pistoia.HELM.js');
         require('./src/JSDraw/Scilligence.JSDraw2.Resources.js');
         resolve('success');
       },
