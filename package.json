@@ -1,6 +1,6 @@
 {
   "name": "@pistoiahelm/react-hwe-deps",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Dependencies for react-hwe-editor.",
   "publishConfig": { "registry": "https://npm.pkg.github.com/" },
   "repository": "https://github.com/PistoiaHELM/react-hwe-deps",
@@ -15,6 +15,5 @@
   "author": "Josh Ren",
   "license": "ISC",
   "dependencies": {
-    "postscribe": "^2.0.8"
   }
 }
