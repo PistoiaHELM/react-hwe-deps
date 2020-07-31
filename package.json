@@ -1,6 +1,6 @@
 {
   "name": "@pistoiahelm/react-hwe-deps",
-  "version": "1.0.8",
+  "version": "1.1.0",
   "description": "Dependencies for react-hwe-editor.",
   "publishConfig": { "registry": "https://npm.pkg.github.com/" },
   "repository": "https://github.com/PistoiaHELM/react-hwe-deps",
