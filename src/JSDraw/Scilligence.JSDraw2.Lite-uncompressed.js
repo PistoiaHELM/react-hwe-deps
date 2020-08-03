@@ -30,6 +30,9 @@ DEBUG = {
 scilligence = { _base: function () { } };
 oln = scilligence;
 scil = scilligence;
+scil.eventListeners = [];
+scil.attachListeners = [];
+scil.dojoListeners = [];
 
 /**
 * scilligence.apply is a tool function to append new properties to a dictionary object
@@ -166,16 +169,38 @@ scilligence.apply(scilligence, {
         return document.getElementById(id);
     },
 
-    connect: function (element, event, callback) {
+    connect: function (element, event, callback) { // edited
+        var handleConnect = (e) => { callback(e, element); }
+        var connectMap = {
+            'element': element,
+            'event': event,
+            'function': handleConnect
+        }
         if (element == null || event == null || event == "" || callback == null)
             return;
+        if (element.addEventListener != null) {
+            element.addEventListener(event.substr(2), handleConnect);
+            connectMap.event = event.substr(2);
+            scil.eventListeners.push(connectMap);            
+        } else if (element.attachEvent != null) {
+            element.attachEvent(event, handleConnect);
+            scil.attachListeners.push(connectMap);
+        } else {
+            scil.dojoListeners.push(dojo.connect(element, event, handleConnect));
+        }
+    }, 
 
-        if (element.addEventListener != null)
-            element.addEventListener(event.substr(2), function (e) { callback(e, element); });
-        else if (element.attachEvent != null)
-            element.attachEvent(event, function (e) { callback(e, element); });
-        else
-            dojo.connect(element, event, function (e) { callback(e, element); });
+
+    disconnectAll: function () { // added for react HWE   
+        scil.eventListeners.forEach((map) => {     
+            map.element.removeEventListener(map.event, map.function);
+        });
+        scil.attachListeners.forEach((map) => {
+            map.element.detachEvent(map.event, map.function);
+        });
+        scil.dojoListeners.forEach((connecter) => {
+            dojo.disconnect(connecter);
+        });
     }
 });
 
@@ -22532,8 +22557,9 @@ scil.Dialog = scil.extend(scil._base, {
 
         var opacity = this.options.opacity > 0 ? this.options.opacity : 35;
         this.dialogmask = scilligence.Utils.createElement(topBody, 'div', null, { position: "absolute", top: "0", left: "0", minHeight: "100%", height: "100%", width: "100%", background: "#999", opacity: opacity / 100.0, filter: "alpha(opacity=" + opacity + ")", zIndex: zi - 1 });
-        dojo.connect(window, "onresize", function () { me.resize(); });
+        dojo.connect(window, "onresize", function () { me.resize(); }); 
         dojo.connect(window, "onscroll", function () { me.scroll(); });
+        
 
         // bug: I#5763
         if (this.options.fixtransparentissue && dojox.gfx.renderer == "silverlight") {
