@@ -190,17 +190,14 @@ scilligence.apply(scilligence, {
         }
     }, 
 
-
     disconnectAll: function () { // added for react HWE   
-        scil.eventListeners.forEach((map) => {     
-            map.element.removeEventListener(map.event, map.function);
-        });
-        scil.attachListeners.forEach((map) => {
-            map.element.detachEvent(map.event, map.function);
-        });
-        scil.dojoListeners.forEach((connecter) => {
-            dojo.disconnect(connecter);
-        });
+        scil.eventListeners.forEach((map) => { map.element.removeEventListener(map.event, map.function) });
+        scil.attachListeners.forEach((map) => { map.element.detachEvent(map.event, map.function) });
+        scil.dojoListeners.forEach((connecter) => { dojo.disconnect(connecter) });
+        console.log(scil.dojoConnectHandlers);
+        
+        scil.dojoConnectHandlers.forEach((connecter) => { dojo.disconnect(connecter) });
+        if (document.body.oncontextmenu && (document.body.oncontextmenu.name == "hweHandleContextMenu")) { document.body.oncontextmenu = null }
     }
 });
 
@@ -545,7 +542,7 @@ scilligence.Utils = {
             return;
 
         doc.body.__contextmenudisabled = true;
-        doc.body.oncontextmenu = function (e) {
+        doc.body.oncontextmenu = function hweHandleContextMenu(e) {
             if (e == null)
                 e = event;
 
@@ -14513,6 +14510,7 @@ JSDraw2.Editor = scilligence.extend(scilligence._base, {
 
         this.ptElement = null;
         this.connectHandlers = [];
+        scil.dojoConnectHandlers = this.connectHandlers;
         this.maintable = null;
         this.div = dv;
         if (this.div.id == null || this.div.id.length == 0)
@@ -14768,7 +14766,9 @@ JSDraw2.Editor = scilligence.extend(scilligence._base, {
 
             if (scil.Utils.isTouch) {
                 this.activate(false, false);
-                this.connectHandlers.push(dojo.connect(document.body, 'ontouchstart', function (e) { return me.bodyTouchStart(e); }));
+                var dojoTouchStart = dojo.connect(document.body, 'ontouchstart', function (e) { return me.bodyTouchStart(e); });
+                scil.dojoListeners.push(dojoTouchStart);
+                this.connectHandlers.push(dojoTouchStart);
                 this.connectHandlers.push(dojo.connect(this.maintable, 'onclick', function (e) { return me.touchClick(e); }));
                 this.connectHandlers.push(dojo.connect(this.div, 'ontouchstart', function (e) { return me.touchStart(e); }));
                 this.connectHandlers.push(dojo.connect(this.div, 'ontouchmove', function (e) { return me.touchMove(e); }));
@@ -14776,9 +14776,13 @@ JSDraw2.Editor = scilligence.extend(scilligence._base, {
             }
             else {
                 this.activate(false, false);
-                this.connectHandlers.push(dojo.connect(document, 'onmousedown', function (e) { return me.bodyMouseDown(e); }));
+                var dojoMouseDown = dojo.connect(document, 'onmousedown', function (e) { return me.bodyMouseDown(e); })
+                scil.dojoListeners.push(dojoMouseDown);
+                this.connectHandlers.push(dojoMouseDown);
                 //this.connectHandlers.push(dojo.connect(document, 'onclick', function (e) { me.bodyClick(e); }));
-                this.connectHandlers.push(dojo.connect(document, 'onkeydown', function (e) { me.keydown(e); }));
+                var dojoKeyDown = dojo.connect(document, 'onkeydown', function (e) { me.keydown(e); })
+                scil.dojoListeners.push(dojoKeyDown);
+                this.connectHandlers.push(dojoKeyDown);
                 this.connectHandlers.push(dojo.connect(this.div, 'onmousedown', function (e) { me.mousedown(e); }));
                 this.connectHandlers.push(dojo.connect(this.div, 'onmousemove', function (e) { me.mousemove(e); }));
                 this.connectHandlers.push(dojo.connect(this.div, 'onmouseup', function (e) { me.mouseup(e); }));
@@ -22233,7 +22237,7 @@ scil.ContextMenu = scil.extend(scil._base, {
             this.tbody.setAttribute("jspopupmenu", "1");
             dojo.connect(this.tbody.parentNode, "onmousedown", function (e) { if (e.button != 2) me.click(e); });
             dojo.connect(this.tbody.parentNode, "onmouseover", function (e) { me.hilit(e); });
-            dojo.connect(this.document.body, "onmousedown", function (e) { me.clickOut(e); });
+            scil.dojoListeners.push(dojo.connect(this.document.body, "onmousedown", function (e) { me.clickOut(e); }));
             this._createItems();
         }
         else if (items != null) {
@@ -22524,14 +22528,14 @@ scil.Dialog = scil.extend(scil._base, {
             if (this.options.movable != false) {
                 if (scilligence.Utils.isTouch) {
                     dojo.connect(tr, "ontouchstart", function (e) { if (e.touches.length == 1) me.startMove(e.touches[0]); });
-                    dojo.connect(topBody, "ontouchmove", function (e) { if (e.touches.length == 1 && me.move(e.touches[0])) { e.preventDefault(); return false; } });
-                    dojo.connect(topBody, "ontouchend", function () { me.endMove(); });
+                    scil.dojoListeners.push(dojo.connect(topBody, "ontouchmove", function (e) { if (e.touches.length == 1 && me.move(e.touches[0])) { e.preventDefault(); return false; } }));
+                    scil.dojoListeners.push(dojo.connect(topBody, "ontouchend", function () { me.endMove(); }));
                 }
                 else {
                     tr.style.cursor = "move";
                     dojo.connect(tr, "onmousedown", function (e) { me.startMove(e); });
-                    dojo.connect(topBody, "onmousemove", function (e) { me.move(e); });
-                    dojo.connect(topBody, "onmouseup", function () { me.endMove(); });
+                    scil.dojoListeners.push(dojo.connect(topBody, "onmousemove", function (e) { me.move(e); }));
+                    scil.dojoListeners.push(dojo.connect(topBody, "onmouseup", function () { me.endMove(); }));
                 }
             }
         }
@@ -22557,8 +22561,8 @@ scil.Dialog = scil.extend(scil._base, {
 
         var opacity = this.options.opacity > 0 ? this.options.opacity : 35;
         this.dialogmask = scilligence.Utils.createElement(topBody, 'div', null, { position: "absolute", top: "0", left: "0", minHeight: "100%", height: "100%", width: "100%", background: "#999", opacity: opacity / 100.0, filter: "alpha(opacity=" + opacity + ")", zIndex: zi - 1 });
-        dojo.connect(window, "onresize", function () { me.resize(); }); 
-        dojo.connect(window, "onscroll", function () { me.scroll(); });
+        scil.dojoListeners.push(dojo.connect(window, "onresize", function () { me.resize(); })); 
+        scil.dojoListeners.push(dojo.connect(window, "onscroll", function () { me.scroll(); }));
         
 
         // bug: I#5763
@@ -22691,11 +22695,12 @@ scil.apply(scil.Dialog, {
 });
 
 scil.onload(function () {
-    dojo.connect(document.body, "onkeydown", function (e) { scil.Dialog.keydown(e); });
+    scil.dojoListeners.push(dojo.connect(document.body, "onkeydown", function (e) { scil.Dialog.keydown(e); }));
 });
 
 
-JsDialog = JSDraw2.Dialog = scil.Dialog;﻿//////////////////////////////////////////////////////////////////////////////////
+JsDialog = JSDraw2.Dialog = scil.Dialog;
+//////////////////////////////////////////////////////////////////////////////////
 //
 // JSDraw.Lite
 // Copyright (C) 2018 Scilligence Corporation
@@ -27114,7 +27119,7 @@ scil.DropdownInput = scil.extend(scilligence._base, {
             var me = this;
             var pos = scil.Utils.isFixedPosition(this.input) ? "fixed" : "absolute";
             this.auto = scil.Utils.createElement(document.body, "div", null, { display: "none", backgroundColor: "white", overflow: "hidden", border: "solid 1px gray", position: pos, zIndex: 99999 });
-            dojo.connect(document.body, "onmousedown", function (e) { var src = e.srcElement || e.target; if (src != me.q && src.parentNode != me.auto) me.clickout(); });
+            scil.dojoListeners.push(dojo.connect(document.body, "onmousedown", function (e) { var src = e.srcElement || e.target; if (src != me.q && src.parentNode != me.auto) me.clickout(); }));
         }
 
         if (this.itemschanged)
@@ -27524,7 +27529,7 @@ scil.apply(scil.Popup, {
             return;
         this.inited = true;
 
-        dojo.connect(document, "onmousemove", function (e) { scil.Popup.move(e); });
+        scil.dojoListeners.push(dojo.connect(document, "onmousemove", function (e) { scil.Popup.move(e); }));
     },
 
     create: function () {
@@ -28976,9 +28981,8 @@ scil.DnD = scil.extend(scil._base, {
 
         var me = this;
         dojo.connect(parent, "onmousedown", function (e) { if (!me.disabled) me.mousedown(e); });
-
-        dojo.connect(document.body, "onmousemove", function (e) { if (!me.disabled) me.mousemove(e); });
-        dojo.connect(document.body, "onmouseup", function (e) { if (!me.disabled) me.mouseup(e); });
+        scil.dojoListeners.push(dojo.connect(document.body, "onmousemove", function (e) { if (!me.disabled) me.mousemove(e); }));
+        scil.dojoListeners.push(dojo.connect(document.body, "onmouseup", function (e) { if (!me.disabled) me.mouseup(e); }));
     },
 
     isDragging: function () {
@@ -29256,7 +29260,7 @@ scilligence.DropdownButton = scilligence.extend(scilligence._base, {
             this.area = scil.Utils.createElement(div, "div", null, { backgroundColor: "#fff" });
             //this.auto = scil.Utils.createElement(document.body, "div", null, { display: "none", backgroundColor: this.options.backgroundColor == null ? "white" : this.options.backgroundColor, border: "solid 1px gray", position: "absolute", width: w });
 
-            dojo.connect(document.body, "onmousedown", function (e) { var src = e.srcElement || e.target; if (src != me.q && !scil.Utils.isChildOf(src, me.auto)) me.clickout(); });
+            scil.dojoListeners.push(dojo.connect(document.body, "onmousedown", function (e) { var src = e.srcElement || e.target; if (src != me.q && !scil.Utils.isChildOf(src, me.auto)) me.clickout(); }));
             this.list(this.options.items);
         }
         //this.auto.style.display = "";
