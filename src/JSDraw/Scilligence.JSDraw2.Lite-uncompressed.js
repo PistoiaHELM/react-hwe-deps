@@ -194,8 +194,6 @@ scilligence.apply(scilligence, {
         scil.eventListeners.forEach((map) => { map.element.removeEventListener(map.event, map.function) });
         scil.attachListeners.forEach((map) => { map.element.detachEvent(map.event, map.function) });
         scil.dojoListeners.forEach((connecter) => { dojo.disconnect(connecter) });
-        console.log(scil.dojoConnectHandlers);
-        
         scil.dojoConnectHandlers.forEach((connecter) => { dojo.disconnect(connecter) });
         if (document.body.oncontextmenu && (document.body.oncontextmenu.name == "hweHandleContextMenu")) { document.body.oncontextmenu = null }
     }
