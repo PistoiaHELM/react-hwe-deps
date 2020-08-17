@@ -191,10 +191,22 @@ scilligence.apply(scilligence, {
     }, 
 
     disconnectAll: function () { // added for react HWE   
-        scil.eventListeners.forEach((map) => { map.element.removeEventListener(map.event, map.function) });
-        scil.attachListeners.forEach((map) => { map.element.detachEvent(map.event, map.function) });
-        scil.dojoListeners.forEach((connecter) => { dojo.disconnect(connecter) });
-        scil.dojoConnectHandlers.forEach((connecter) => { dojo.disconnect(connecter) });
+        scil.eventListeners.forEach((map) => { 
+            map.element.removeEventListener(map.event, map.function);
+            scil.eventListeners.shift();
+        });
+        scil.attachListeners.forEach((map) => { 
+            map.element.detachEvent(map.event, map.function);
+            scil.attachListeners.shift();
+        });
+        scil.dojoListeners.forEach((connecter) => { 
+            dojo.disconnect(connecter);
+            scil.dojoListeners.shift();
+        });
+        scil.dojoConnectHandlers.forEach((connecter) => { 
+            dojo.disconnect(connecter);
+            scil.dojoConnectHandlers.shift();
+        });
         if (document.body.oncontextmenu && (document.body.oncontextmenu.name == "hweHandleContextMenu")) { document.body.oncontextmenu = null }
     }
 });

@@ -5,7 +5,7 @@
  *  update project using 'npm update hwe-react-deps'
  */
 module.exports = () => {
-  if (!navigator.onLine) { throw 'HWE offline... check internet connection' }
+  if (!navigator.onLine) { alert('Navigator offline. Check internet connection'); throw 'HTTP Status 503: Service Unavailable'}
   return new Promise((resolve) => {
     if (!window.org) {
       var s = document.createElement("script");
