@@ -22,12 +22,12 @@ module.exports = () => {
       document.head.appendChild(s);
     } else { // skip dependencies
       if (window.scil) { // dependencies are loaded
-        res();
+        scil.ready(() => { res(); });
       } else { // wait for dependencies to load
         let interval = setInterval(() => {
           if (window.scil) {
             clearInterval(interval);
-            res();
+            scil.ready(() => { res(); });
           }
         }, 100);
       }

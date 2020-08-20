@@ -33,6 +33,7 @@ scil = scilligence;
 scil.eventListeners = [];
 scil.attachListeners = [];
 scil.dojoListeners = [];
+scil.dojoConnectHandlers = [];
 
 /**
 * scilligence.apply is a tool function to append new properties to a dictionary object
